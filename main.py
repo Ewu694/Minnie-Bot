@@ -32,3 +32,23 @@ async def sendMessage(message: Message, user_message: str) -> None:
 @client.event
 async def on_ready() -> None:
     print(f'{client.user} is now running!')
+
+# Message Handling
+@client.event
+async def on_message(message: Message) -> None:
+    if message.author == client.user: # means this is bot message so we don't want to respond to it
+        return
+    
+    username: str = message.author
+    user_message: str = message.content
+    channel: str = str(message.channel)
+    
+    print(f'{username} said: {user_message} in {channel}') # Message Logging
+    await sendMessage(message, user_message)
+
+#Entry Point to run our code
+def main() -> None:
+    client.run(DISCORD_TOKEN)
+
+if __name__ == '__main__':
+    main()

@@ -1,4 +1,4 @@
-from random import choice, randInt
+from random import choice, randint
 
 def get_response(user_input: str) -> str:
     lowered: str = user_input.lower() 
@@ -8,4 +8,4 @@ def get_response(user_input: str) -> str:
     elif lowered == 'hi' or 'hello':
         return 'Howdy! :3'
     else:
-        return randInt(1, 100)
+        return randint(1, 100)
