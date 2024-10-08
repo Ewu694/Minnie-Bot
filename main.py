@@ -1,6 +1,8 @@
 from typing import Final
 import os 
 from dotenv import load_dotenv
+import discord
+from discord.ext import commands
 from discord import Intents, Client, Message
 from responses import get_response
 
@@ -12,6 +14,16 @@ DISCORD_TOKEN: Final[str] = os.getenv('DISCORD_TOKEN')
 intents: Intents = Intents.default()
 intents.message_content = True
 client: Client = Client(intents = intents)
+bot = commands.Bot(command_prefix='/', intents = intents)
+
+@bot.hybrid_command()
+async def ping(context: commands.Context) -> None:
+    await context.send('Pong!')
+
+@bot.hybrid_command()
+async def sync(context: commands.Context) -> None:
+    await context.send('Syncing...')
+    await bot.tree.sync()
 
 # Message Functionality
 async def sendMessage(message: Message, user_message: str) -> None:
