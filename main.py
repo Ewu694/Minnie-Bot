@@ -2,10 +2,27 @@ from typing import Final
 import os 
 from dotenv import load_dotenv
 import discord 
-from discord import Intents, Client, Message
-class Client(discord.client):
-    async def on_bot_ready() -> None:
-        print(f'{client.user} is now running!')
+from discord import Intents, Message, app_commands
+from discord.ext import commands
+
+# Load our tokens from .env
+load_dotenv()
+DISCORD_TOKEN: Final[str] = os.getenv('DISCORD_TOKEN')
+GUILD_ID = discord.Object(id=os.getenv('DISCORD_SERVER_ID'))
+
+class Client(commands.Bot):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.task_list = {}
+
+    async def on_ready(self):
+        print(f'Meowat your service {self.user}!')
+        try:
+            synced = await self.tree.sync(guild=GUILD_ID)
+            print(f'Synced {len(synced)} commands to server {GUILD_ID}!')
+        except Exception as e:
+            print(f'Failed to sync commands to server {GUILD_ID}!')
+            print(f'Error: {e}')
     
     async def on_message(self, message: Message):
         if message.author == self.user:
@@ -14,11 +31,51 @@ class Client(discord.client):
         if message.content.startswith('hello'):
             await message.channel.send(f'Meowdy {message.author}!')
 
-# Load our token from .env
-load_dotenv()
-DISCORD_TOKEN: Final[str] = os.getenv('DISCORD_TOKEN')
-
 # Bot Setup
 intents: Intents = discord.Intents.default()
 intents.message_content = True
-client: Client = Client(intents = intents)
+
+client = Client(command_prefix="!", intents=intents)
+
+@client.tree.command(name='hello', description='Say hello to the bot!', guild=GUILD_ID)
+async def bot_hello(interaction: discord.Interaction) -> None:
+    await interaction.response.send_message('Meowdy! :3')
+
+@client.tree.command(name='addtasks', description='Add Tasks that you need to do!', guild=GUILD_ID)
+async def add_tasks(interaction: discord.Interaction, item: str) -> None:
+    if not client.task_list:
+        client.task_list[1] = item
+    else:
+        client.task_list[len(client.task_list) + 1] = item
+    await interaction.response.send_message(f'Added task: {item}')
+
+@client.tree.command(name='showtasks', description='Show all items in the tasklist', guild=GUILD_ID)
+async def show_tasks(interaction: discord.Interaction) -> None:
+    if not client.task_list:
+        await interaction.response.send_message('There are currently no tasks to be done!')
+    else:
+        tasks = '\n'.join(f'{key}: {value}' for key, value in client.task_list.items())
+        await interaction.response.send_message(f'Tasks to do:\n{tasks}')
+
+@client.tree.command(name='removetask', description='Remove a task from the tasklist', guild=GUILD_ID)
+async def remove_task(interaction: discord.Interaction, task_id: int) -> None:
+    if not client.task_list:
+        await interaction.response.send_message('There are currently no tasks to be done!')
+    if task_id not in client.task_list:
+        await interaction.response.send_message('Task not found!')
+    else:
+        del client.task_list[task_id]
+        await interaction.response.send_message(f'Removed task with ID: {task_id}')
+
+@client.tree.command(name='cleartasks', description='Clear all tasks from the tasklist', guild=GUILD_ID)
+async def clear_tasks(interaction: discord.Interaction) -> None:
+    if not client.task_list:
+        await interaction.response.send_message('No tasks to clear!')
+    else:
+        client.task_list.clear()
+        await interaction.response.send_message('Cleared all tasks!')
+
+client.run(DISCORD_TOKEN)
+
+
+
