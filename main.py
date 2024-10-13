@@ -27,15 +27,24 @@ class Client(commands.Bot):
         except Exception as e:
             print(f'Failed to sync commands to server {GUILD_ID}!')
             print(f'Error: {e}')
-    
+
     async def on_message(self, message: Message):
         if message.author == self.user:
             return
         if message.content.startswith('hello'):
             await message.channel.send(f'Meowdy {message.author}!')
+    
     async def schedule_task_deletion(self, task_id: int, delay: int):
         await asyncio.sleep(delay)
         if task_id in self.task_list:
+            task = self.task_list[task_id]
+            if task.repeating == 1:
+                print(f'Task with ID {task_id} is repeating and will be re-added.')
+                # Re-add the task with a new ID
+                new_task_id = max(self.task_list.keys(), default=0) + 1
+                self.task_list[new_task_id] = task
+                # Schedule the deletion again
+                self.loop.create_task(self.schedule_task_deletion(new_task_id, delay))
             del self.task_list[task_id]
             print(f'Task with ID {task_id} has been deleted after {delay} seconds.')
         else:
@@ -87,6 +96,7 @@ async def add_tasks(interaction: discord.Interaction, task_description: str, rep
     task_embed = discord.Embed(title = "Task Added", description = f'Added Task: {new_task.description} |──ᓚ₍ ^. .^₎୨୧──| ID: {task_id} \nJust for you {interaction.user.display_name} ᓚ₍ ^. .^₎୨୧')
     if delay_str:
         task_embed.set_footer(text=f'This task will be deleted after {delay_str}.')
+
     await interaction.response.send_message(embed = task_embed)
 
 @client.tree.command(name='show_tasks', description='Show all items in the tasklist', guild=GUILD_ID)
