@@ -12,7 +12,10 @@ Paste this link: N/A (For if I decide to make this bot available to everyone, fo
 1) Fork my Code and open it on your local IDE
 2) Add your .env to your local IDE
 3) In this .env add the token I give you and change the DISCORD_SERVER_ID to whatever server you're using it on
-4) Run the code and keep it running if you want to use it
+4) Necessary Packages:
+ - pip install discord.pp or python3 -m pip install -U discord.py 
+ - pip install python-dotenv or python3 -m pip install -U python-dotenv
+6) Run the code and keep it running if you want to use it
 
 ## Note
 Because the bot has a client class that currently stores the tasks locally within itself through an array, as soon you stop running this code, the tasks will also disappear.
