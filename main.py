@@ -1,5 +1,5 @@
 import asyncio
-import _datetime
+from datetime import datetime
 from typing import Final
 import os 
 from dotenv import load_dotenv
@@ -79,15 +79,16 @@ async def clear_tasks(interaction: discord.Interaction) -> None:
 
 @client.tree.command(name='vote', description='Vote for whichever option you like!', guild=GUILD_ID)
 async def vote(interaction: discord.Interaction, option: str, first_option: str, second_option: str) -> None:
-    embed = await discord.Embed(title = f'Vote for: {option}!', description = f'1️⃣ for {first_option}\n2️⃣ for {second_option}\nVoting ends in 10 minutes!', timestamp = datetime.now("US/EASTERN"))
-    message = await interaction.response.send_message(embed = embed)
-    await interaction.original_response.add_reaction(client, '1️⃣')
-    await interaction.original_response.add_reaction(client, '2️⃣')
-    await asyncio.sleep(2)
+    embed = discord.Embed(title = f'Vote for: {option}!', description = f'1️⃣ for {first_option}\n2️⃣ for {second_option}\nVoting ends in 10 minutes!', timestamp = datetime.now())
+    await interaction.response.send_message(embed = embed)
+    message = await interaction.original_response()
+    await message.add_reaction('1️⃣')
+    await message.add_reaction('2️⃣')
+    await asyncio.sleep(5)
     
-    new_message = await interaction.original_response()
-    yes_choice = await new_message.reactions[0].users().flatten()
-    no_choice = await new_message.reactions[1].users().flatten()
+    print(message)
+    yes_choice = await message.reactions
+    no_choice = await message.reactions
     
     result = 'Tie'
     if len(yes_choice) > len(no_choice):
