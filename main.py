@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import discord 
 from discord import Intents, Message, app_commands
 from discord.ext import commands
+import task
 
 # Load our tokens from .env
 load_dotenv()
@@ -42,41 +43,53 @@ client = Client(command_prefix="!", intents=intents)
 
 @client.tree.command(name='hello', description='Say hello to the bot!', guild=GUILD_ID)
 async def bot_hello(interaction: discord.Interaction) -> None:
-    await interaction.response.send_message('Meowdy! :3')
+    await interaction.response.send_message('Meowdy ᓚ₍ ^. .^₎୨୧')
 
-@client.tree.command(name='addtasks', description='Add Tasks that you need to do!', guild=GUILD_ID)
-async def add_tasks(interaction: discord.Interaction, item: str) -> None:
+@client.tree.command(name='add_tasks', description='Add Tasks that you need to do!', guild=GUILD_ID)
+async def add_tasks(interaction: discord.Interaction, item: str, type: int = 0) -> None:
+    new_task = task.Task(item, interaction.user.display_name, type)
     if not client.task_list:
-        client.task_list[1] = item
+        client.task_list[1] = new_task
     else:
-        client.task_list[len(client.task_list) + 1] = item
-    await interaction.response.send_message(f'Added task: {item}')
+        client.task_list[len(client.task_list) + 1] = new_task
+    await interaction.response.send_message(f'Added Task: {new_task.description} |──ᓚ₍ ^. .^₎୨୧──| ID: {len(client.task_list)} \nJust for you {interaction.user.display_name} ᓚ₍ ^. .^₎୨୧')
 
-@client.tree.command(name='showtasks', description='Show all items in the tasklist', guild=GUILD_ID)
+@client.tree.command(name='show_tasks', description='Show all items in the tasklist', guild=GUILD_ID)
 async def show_tasks(interaction: discord.Interaction) -> None:
     if not client.task_list:
-        await interaction.response.send_message('There are currently no tasks to be done!')
+        await interaction.response.send_message('There are currently no tasks to be done, add some meowster ᓚ₍ ^. .^₎୨୧')
     else:
-        tasks = '\n'.join(f'{key}: {value}' for key, value in client.task_list.items())
-        await interaction.response.send_message(f'Tasks to do:\n{tasks}')
+        tasks = '\n'.join(f'{key}: {value.description} |──ᓚ₍ ^. .^₎୨୧──| Task Type: {value.type} |──ᓚ₍ ^. .^₎୨୧──| Created by: {value.author}' for key, value in client.task_list.items())
+        show_tasks_embed = discord.Embed(title = 'Task List', description = (f'\n{tasks}'), timestamp = datetime.now())
+        await interaction.response.send_message(embed = show_tasks_embed)
 
-@client.tree.command(name='removetask', description='Remove a task from the tasklist', guild=GUILD_ID)
+@client.tree.command(name='remove_task', description='Remove a task from the tasklist', guild=GUILD_ID)
 async def remove_task(interaction: discord.Interaction, task_id: int) -> None:
     if not client.task_list:
-        await interaction.response.send_message('There are currently no tasks to be done!')
+        await interaction.response.send_message('There are currently no tasks to be done! Add some meowster! ᓚ₍ ^. .^₎୨୧')
     if task_id not in client.task_list:
-        await interaction.response.send_message('Task not found!')
+        await interaction.response.send_message("Task not found! Properly check the task ID using '/show_tasks' and try again :3!")
     else:
         del client.task_list[task_id]
-        await interaction.response.send_message(f'Removed task with ID: {task_id}')
+        await interaction.response.send_message(f'Removed task with ID: {task_id} from the tasklist ᓚ₍ ^. .^₎୨୧')
 
-@client.tree.command(name='cleartasks', description='Clear all tasks from the tasklist', guild=GUILD_ID)
+@client.tree.command(name='clear_tasks', description='Clear all tasks from the tasklist', guild=GUILD_ID)
 async def clear_tasks(interaction: discord.Interaction) -> None:
     if not client.task_list:
-        await interaction.response.send_message('No tasks to clear!')
+        await interaction.response.send_message('No tasks to clear ᓚ₍ ^. .^₎୨୧')
     else:
         client.task_list.clear()
-        await interaction.response.send_message('Cleared all tasks!')
+        await interaction.response.send_message('Cleared all tasks meowster >:3!')
+
+@client.tree.command(name='change_task_type', description='Change the type of a task', guild=GUILD_ID)
+async def change_task_type(interaction: discord.Interaction, task_id: int, task_type: int) -> None:
+    if not client.task_list:
+        await interaction.response.send_message('No tasks to change! Add some meowster ᓚ₍ ^. .^₎୨୧')
+    if task_id not in client.task_list:
+        await interaction.response.send_message("Task not found! Properly check the task ID using '/show_tasks' and try again :3!")
+    else:
+        client.task_list[task_id].set_type(task_type)
+        await interaction.response.send_message(f'Changed task type to {task_type} for task with ID: {task_id} ᓚ₍ ^. .^₎୨୧')
 
 @client.tree.command(name='vote', description='Vote for whichever option you like!', guild=GUILD_ID)
 async def vote(interaction: discord.Interaction, option: str, first_option: str, second_option: str) -> None:
@@ -99,7 +112,7 @@ async def vote(interaction: discord.Interaction, option: str, first_option: str,
         result = first_option
     elif no_choice > yes_choice:
         result = second_option
-    result_embed = discord.Embed(title = 'Vote Result', description = f'The result of the vote is: {result}', color = discord.Color.green(), timestamp = datetime.now())
+    result_embed = discord.Embed(title = 'Vote Re sult', description = f'The result of the vote is: {result}', color = discord.Color.green(), timestamp = datetime.now())
     await interaction.followup.send(content = '@everyone', embed = result_embed, allowed_mentions = discord.AllowedMentions(everyone = True))
 
 @client.tree.command(name='splitbill', description='Split the bill among friends!', guild=GUILD_ID)
