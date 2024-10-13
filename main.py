@@ -31,9 +31,15 @@ class Client(commands.Bot):
     async def on_message(self, message: Message):
         if message.author == self.user:
             return
-        
         if message.content.startswith('hello'):
             await message.channel.send(f'Meowdy {message.author}!')
+    async def schedule_task_deletion(self, task_id: int, delay: int):
+        await asyncio.sleep(delay)
+        if task_id in self.task_list:
+            del self.task_list[task_id]
+            print(f'Task with ID {task_id} has been deleted after {delay} seconds.')
+        else:
+            print(f'Task was completed earlier than set time ᓚ₍ ^. .^₎୨୧')
 
 # Bot Setup
 intents: Intents = discord.Intents.default()
@@ -46,13 +52,42 @@ async def bot_hello(interaction: discord.Interaction) -> None:
     await interaction.response.send_message('Meowdy ᓚ₍ ^. .^₎୨୧')
 
 @client.tree.command(name='add_tasks', description='Add Tasks that you need to do!', guild=GUILD_ID)
-async def add_tasks(interaction: discord.Interaction, item: str, type: int = 0) -> None:
-    new_task = task.Task(item, interaction.user.display_name, type)
-    if not client.task_list:
-        client.task_list[1] = new_task
-    else:
-        client.task_list[len(client.task_list) + 1] = new_task
-    await interaction.response.send_message(f'Added Task: {new_task.description} |──ᓚ₍ ^. .^₎୨୧──| ID: {len(client.task_list)} \nJust for you {interaction.user.display_name} ᓚ₍ ^. .^₎୨୧')
+async def add_tasks(interaction: discord.Interaction, task_description: str, repeating_task: int = 0, task_type: int = 0) -> None:
+    if task_type not in [0, 1, 2, 3, 4]:
+        await interaction.response.send_message('Invalid task type! Task type should be 0, 1, 2, 3, or 4! 0 for one-time, 1 for daily, 2 for weekly, 3 for monthly, and 4 for yearly. Your task type will be defaulted to 0 ᓚ₍ ^. .^₎୨୧')
+        task_type = 0
+    if repeating_task not in [0, 1]:
+        await interaction.response.send_message('Invalid repeating task value! Repeating task should be 0 or 1! 0 for non-repeating and 1 for repeating. Your repeating task value will be defaulted to 0 ᓚ₍ ^. .^₎୨୧')
+        repeating_task = 0
+    new_task = task.Task(task_description, interaction.user.display_name, repeating_task, task_type)
+    task_id = len(client.task_list) + 1
+    if task_id in client.task_list:
+        task_id = max(client.task_list.keys(), default=0) + 1
+    client.task_list[task_id] = new_task
+
+    if type == 1: # daily task
+        delay = 24 * 60 * 60 
+        delay_str = "24 hours"
+    elif type == 2: # weekly task
+        delay = 7 * 24 * 60 * 60 
+        delay_str = "a week"
+    elif type == 3: # monthly task
+        delay = 30 * 24 * 60 * 60
+        delay_str = "30 days"
+    elif type == 4: # yearly task
+        delay = 365 * 24 * 60 * 60 
+        delay_str = "a year"
+    else: # one-time task
+        delay = None
+        delay_str = None
+
+    if delay:
+        client.loop.create_task(client.schedule_task_deletion(task_id, delay))
+
+    task_embed = discord.Embed(title = "Task Added", description = f'Added Task: {new_task.description} |──ᓚ₍ ^. .^₎୨୧──| ID: {task_id} \nJust for you {interaction.user.display_name} ᓚ₍ ^. .^₎୨୧')
+    if delay_str:
+        task_embed.set_footer(text=f'This task will be deleted after {delay_str}.')
+    await interaction.response.send_message(embed = task_embed)
 
 @client.tree.command(name='show_tasks', description='Show all items in the tasklist', guild=GUILD_ID)
 async def show_tasks(interaction: discord.Interaction) -> None:
