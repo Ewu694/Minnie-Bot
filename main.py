@@ -79,24 +79,27 @@ async def clear_tasks(interaction: discord.Interaction) -> None:
 
 @client.tree.command(name='vote', description='Vote for whichever option you like!', guild=GUILD_ID)
 async def vote(interaction: discord.Interaction, option: str, first_option: str, second_option: str) -> None:
-    embed = discord.Embed(title = f'Vote for: {option}!', description = f'1️⃣ for {first_option}\n2️⃣ for {second_option}\nVoting ends in 10 minutes!', timestamp = datetime.now())
-    await interaction.response.send_message(embed = embed)
+    embed = discord.Embed(title = f'Vote for: {option}!', description = f'1️⃣ for {first_option}\n2️⃣ for {second_option}\n\nVoting ends in 10 minutes!', timestamp = datetime.now())
+    await interaction.response.send_message(content = '@everyone', embed = embed, allowed_mentions=discord.AllowedMentions(everyone = True))
     message = await interaction.original_response()
     await message.add_reaction('1️⃣')
     await message.add_reaction('2️⃣')
-    await asyncio.sleep(5)
+    await asyncio.sleep(600)
     
-    print(message)
-    yes_choice = await message.reactions
-    no_choice = await message.reactions
+    updated_message = await interaction.channel.fetch_message(message.id)
+    yes_choice = discord.utils.get(updated_message.reactions, emoji = '1️⃣')
+    no_choice = discord.utils.get(updated_message.reactions, emoji = '2️⃣')
     
+    yes_choice = yes_choice.count - 1
+    no_choice = no_choice.count - 1
+    print(yes_choice, no_choice)
     result = 'Tie'
-    if len(yes_choice) > len(no_choice):
+    if yes_choice> no_choice:
         result = first_option
-    elif len(no_choice) > len(yes_choice):
+    elif no_choice > yes_choice:
         result = second_option
-    embed = discord.Embed(title='Vote Result', description=f'The result of the vote is: {result}')
-    await interaction.response.send_message(embed=embed)
+    result_embed = discord.Embed(title = 'Vote Result', description = f'The result of the vote is: {result}', timestamp = datetime.now())
+    await interaction.followup.send(content = '@everyone', embed = result_embed, allowed_mentions = discord.AllowedMentions(everyone = True))
 
 client.run(DISCORD_TOKEN)
 
