@@ -1,4 +1,5 @@
 import asyncio
+import math
 from datetime import datetime
 from typing import Final
 import os 
@@ -98,8 +99,18 @@ async def vote(interaction: discord.Interaction, option: str, first_option: str,
         result = first_option
     elif no_choice > yes_choice:
         result = second_option
-    result_embed = discord.Embed(title = 'Vote Result', description = f'The result of the vote is: {result}', timestamp = datetime.now())
+    result_embed = discord.Embed(title = 'Vote Result', description = f'The result of the vote is: {result}', color = discord.Color.green(), timestamp = datetime.now())
     await interaction.followup.send(content = '@everyone', embed = result_embed, allowed_mentions = discord.AllowedMentions(everyone = True))
+
+@client.tree.command(name='splitbill', description='Split the bill among friends!', guild=GUILD_ID)
+async def split_bill(interaction: discord.Interaction, total: float, person_to_pay: discord.User, user1: discord.User, user2: discord.User, user3: discord.User = None, user4: discord.User = None, user5: discord.User = None, user6: discord.User = None, user7: discord.User = None, user8: discord.User = None, user9: discord.User = None, user10: discord.User = None) -> None:
+    users = [user for user in [user1, user2, user3, user4, user5, user6, user7, user8, user9, user10] if user is not None]
+    number_of_people = len(users)
+    
+    amount_per_person = math.ceil((total / number_of_people) * 100) / 100
+    user_mentions = ', '.join(user.mention for user in users)
+    embed = discord.Embed(title = 'Bill Splitting', description = f'Each person should pay: ```diff\n+ ${amount_per_person:.2f}\n```', timestamp = datetime.now())
+    await interaction.response.send_message(content = f'Hey {user_mentions} pay {person_to_pay.mention} or else 😾', embed = embed)
 
 client.run(DISCORD_TOKEN)
 
