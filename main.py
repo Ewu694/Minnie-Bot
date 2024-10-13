@@ -116,7 +116,7 @@ async def remove_task(interaction: discord.Interaction, task_id: int) -> None:
         await interaction.response.send_message("Task not found! Properly check the task ID using '/show_tasks' and try again :3!")
     else:
         del client.task_list[task_id]
-        await interaction.response.send_message(f'Removed task with ID: {task_id} from the tasklist ᓚ₍ ^. .^₎୨୧')
+        await interaction.response.send_message(f'Removed task with ID: {task_id} from the tasklist ᓚ₍ ^. .^₎୨୧\nPlease note these tasks are permanently deleted and will not repeat!')
 
 @client.tree.command(name='clear_tasks', description='Clear all tasks from the tasklist', guild=GUILD_ID)
 async def clear_tasks(interaction: discord.Interaction) -> None:
