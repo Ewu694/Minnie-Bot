@@ -1,3 +1,5 @@
+import asyncio
+import _datetime
 from typing import Final
 import os 
 from dotenv import load_dotenv
@@ -74,6 +76,26 @@ async def clear_tasks(interaction: discord.Interaction) -> None:
     else:
         client.task_list.clear()
         await interaction.response.send_message('Cleared all tasks!')
+
+@client.tree.command(name='vote', description='Vote for whichever option you like!', guild=GUILD_ID)
+async def vote(interaction: discord.Interaction, option: str, first_option: str, second_option: str) -> None:
+    embed = await discord.Embed(title = f'Vote for: {option}!', description = f'1️⃣ for {first_option}\n2️⃣ for {second_option}\nVoting ends in 10 minutes!', timestamp = datetime.now("US/EASTERN"))
+    message = await interaction.response.send_message(embed = embed)
+    await interaction.original_response.add_reaction(client, '1️⃣')
+    await interaction.original_response.add_reaction(client, '2️⃣')
+    await asyncio.sleep(2)
+    
+    new_message = await interaction.original_response()
+    yes_choice = await new_message.reactions[0].users().flatten()
+    no_choice = await new_message.reactions[1].users().flatten()
+    
+    result = 'Tie'
+    if len(yes_choice) > len(no_choice):
+        result = first_option
+    elif len(no_choice) > len(yes_choice):
+        result = second_option
+    embed = discord.Embed(title='Vote Result', description=f'The result of the vote is: {result}')
+    await interaction.response.send_message(embed=embed)
 
 client.run(DISCORD_TOKEN)
 
