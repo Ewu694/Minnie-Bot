@@ -35,10 +35,9 @@ class Client(commands.Bot):
             await message.channel.send(f'Meowdy {message.author}!')
     
     async def schedule_task_deletion(self, task_id: int, delay: int):
-        await asyncio.sleep(delay)
         if task_id in self.task_list:
             task = self.task_list[task_id]
-            if task.repeating == 1:
+            if task.repeating_task == 1:
                 print(f'Task with ID {task_id} is repeating and will be re-added.')
                 # Re-add the task with a new ID
                 new_task_id = max(self.task_list.keys(), default=0) + 1
@@ -74,16 +73,16 @@ async def add_tasks(interaction: discord.Interaction, task_description: str, rep
         task_id = max(client.task_list.keys(), default=0) + 1
     client.task_list[task_id] = new_task
 
-    if type == 1: # daily task
+    if task_type == 1: # daily task
         delay = 24 * 60 * 60 
         delay_str = "24 hours"
-    elif type == 2: # weekly task
+    elif task_type == 2: # weekly task
         delay = 7 * 24 * 60 * 60 
         delay_str = "a week"
-    elif type == 3: # monthly task
+    elif task_type == 3: # monthly task
         delay = 30 * 24 * 60 * 60
         delay_str = "30 days"
-    elif type == 4: # yearly task
+    elif task_type == 4: # yearly task
         delay = 365 * 24 * 60 * 60 
         delay_str = "a year"
     else: # one-time task
@@ -119,19 +118,19 @@ async def remove_task(interaction: discord.Interaction, task_id: int) -> None:
         await interaction.response.send_message("Task not found! Properly check the task ID using '/show_tasks' and try again :3!")
         return
     task = client.task_list[task_id]
-    if task.repeating == 1:
+    if task.repeating_task == 1:
         new_task_id = max(client.task_list.keys(), default=0) + 1
         client.task_list[new_task_id] = task
-        if type == 1: # daily task
+        if task.type == 1: # daily task
             delay = 24 * 60 * 60 
             delay_str = "24 hours"
-        elif type == 2: # weekly task
+        elif task.type == 2: # weekly task
             delay = 7 * 24 * 60 * 60 
             delay_str = "a week"
-        elif type == 3: # monthly task
+        elif task.type == 3: # monthly task
             delay = 30 * 24 * 60 * 60
             delay_str = "30 days"
-        elif type == 4: # yearly task
+        elif task.type == 4: # yearly task
             delay = 365 * 24 * 60 * 60 
             delay_str = "a year"
         else: # one-time task
@@ -140,7 +139,10 @@ async def remove_task(interaction: discord.Interaction, task_id: int) -> None:
         client.loop.create_task(client.schedule_task_deletion(new_task_id, delay))
 
     del client.task_list[task_id]
-    await interaction.response.send_message(f'Removed task with ID: {task_id}, if it was a repeating task, it will be re-added with a new ID ᓚ₍ ^. .^₎୨୧, if it was a one-time task, it has been deleted forever! ᓚ₍ ^. .^₎୨୧')
+    remove_embed = discord.Embed(title = 'Task Removed', description=(f'Removed task with ID: {task_id}\nIf it was a repeating task, it will be re-added with a new ID, if it was a one-time task, it has been deleted forever! ᓚ₍ ^. .^₎୨୧'), timestamp = datetime.now())
+    if delay_str:
+        remove_embed.set_footer(text=(f'If your task was a repeating task, it will be set to expire in {delay_str}!'))
+    await interaction.response.send_message(embed = remove_embed)
 
 @client.tree.command(name='clear_tasks', description='Clear all tasks from the tasklist', guild=GUILD_ID)
 async def clear_tasks(interaction: discord.Interaction) -> None:
