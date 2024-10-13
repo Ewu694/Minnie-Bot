@@ -96,6 +96,8 @@ async def add_tasks(interaction: discord.Interaction, task_description: str, rep
     task_embed = discord.Embed(title = "Task Added", description = f'Added Task: {new_task.description} |──ᓚ₍ ^. .^₎୨୧──| ID: {task_id} \nJust for you {interaction.user.display_name} ᓚ₍ ^. .^₎୨୧')
     if delay_str:
         task_embed.set_footer(text=f'This task will be deleted after {delay_str}.')
+    else:
+        task_embed.set_footer(text="This is a one-time task and must be deleted manually using '/remove_task' ᓚ₍ ^. .^₎୨୧")
 
     await interaction.response.send_message(embed = task_embed)
 
@@ -112,11 +114,33 @@ async def show_tasks(interaction: discord.Interaction) -> None:
 async def remove_task(interaction: discord.Interaction, task_id: int) -> None:
     if not client.task_list:
         await interaction.response.send_message('There are currently no tasks to be done! Add some meowster! ᓚ₍ ^. .^₎୨୧')
+        return
     if task_id not in client.task_list:
         await interaction.response.send_message("Task not found! Properly check the task ID using '/show_tasks' and try again :3!")
-    else:
-        del client.task_list[task_id]
-        await interaction.response.send_message(f'Removed task with ID: {task_id} from the tasklist ᓚ₍ ^. .^₎୨୧\nPlease note these tasks are permanently deleted and will not repeat!')
+        return
+    task = client.task_list[task_id]
+    if task.repeating == 1:
+        new_task_id = max(client.task_list.keys(), default=0) + 1
+        client.task_list[new_task_id] = task
+        if type == 1: # daily task
+            delay = 24 * 60 * 60 
+            delay_str = "24 hours"
+        elif type == 2: # weekly task
+            delay = 7 * 24 * 60 * 60 
+            delay_str = "a week"
+        elif type == 3: # monthly task
+            delay = 30 * 24 * 60 * 60
+            delay_str = "30 days"
+        elif type == 4: # yearly task
+            delay = 365 * 24 * 60 * 60 
+            delay_str = "a year"
+        else: # one-time task
+            delay = None
+            delay_str = None
+        client.loop.create_task(client.schedule_task_deletion(new_task_id, delay))
+
+    del client.task_list[task_id]
+    await interaction.response.send_message(f'Removed task with ID: {task_id}, if it was a repeating task, it will be re-added with a new ID ᓚ₍ ^. .^₎୨୧, if it was a one-time task, it has been deleted forever! ᓚ₍ ^. .^₎୨୧')
 
 @client.tree.command(name='clear_tasks', description='Clear all tasks from the tasklist', guild=GUILD_ID)
 async def clear_tasks(interaction: discord.Interaction) -> None:
