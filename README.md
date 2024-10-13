@@ -5,7 +5,7 @@
  - Task list is very simple and shows every task, doesn't say daily, weekly, etc.
   - Next up may be for me to seperate into daily, weekly, etc.
 # To-Use Bot
-Paste this link: N/A (For if I decide to make this bot available to everyone, for now contact me if you wanna use this bot) 
+Paste this link: N/A (For if I decide to make this bot available to everyone, for now contact me if you wanna use this bot, as long as I know you I'll give you the bot token. For others, please wait until I finish figuring out deploying this bot) 
 
 
 # Developer/Collaborators/Other people who wanna use it Download Guide
@@ -14,7 +14,7 @@ Paste this link: N/A (For if I decide to make this bot available to everyone, fo
 3) In this .env add the token I give you and change the DISCORD_SERVER_ID to whatever server you're using it on
 4) Run the code and keep it running if you want to use it
 
-## NOTE
+## Note
 Because the bot has a client class that currently stores the tasks locally within itself through an array, as soon you stop running this code, the tasks will also disappear.
  - To remedy this, I'll look into using a database to store the tasks for each user. I'll start looking into this when I finish my database class. For now the main functionality is the voting system
  
