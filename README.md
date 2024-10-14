@@ -57,7 +57,7 @@ Paste this link: N/A (For if I decide to make this bot available to everyone, fo
 4) Necessary Packages:
  - pip install discord.pp or python3 -m pip install -U discord.py 
  - pip install python-dotenv or python3 -m pip install -U python-dotenv
-6) Run the code and keep it running if you want to use it
+5) Run the code and keep it running if you want to use it
 
 ## Note
 If you find any bugs or any problems, please contact me and let me know so I can fix it ASAP!<br/>Because the bot has a client class that currently stores the tasks locally within itself through an array, as soon as the bot goes down due to updates or whatever reason that may stop it, the tasks will also disappear.
