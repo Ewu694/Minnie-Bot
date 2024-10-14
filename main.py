@@ -231,7 +231,7 @@ async def vote(interaction: discord.Interaction, option: str, first_option: str,
     await interaction.followup.send(content = '@everyone', embed = result_embed, allowed_mentions = discord.AllowedMentions(everyone = True))
     
 
-@client.tree.command(name='splitbill', description='Split the bill among friends!', guild=GUILD_ID)
+@client.tree.command(name='split_bill', description='Split the bill among friends!', guild=GUILD_ID)
 async def split_bill(interaction: discord.Interaction, total: float, person_to_pay: discord.User, user1: discord.User, user2: discord.User, user3: discord.User = None, user4: discord.User = None, user5: discord.User = None, user6: discord.User = None, user7: discord.User = None, user8: discord.User = None, user9: discord.User = None, user10: discord.User = None) -> None:
     users = [user for user in [user1, user2, user3, user4, user5, user6, user7, user8, user9, user10] if user is not None]
     number_of_people = len(users)
