@@ -1,5 +1,5 @@
 # Minnie-Bot
- Discord Bot named after my girlfriend's moody but cute cat to track whatever tasks you set to it and help organize voting, split bills and other features for groups
+ Discord Bot named after my girlfriend's moody but cute cat to track whatever tasks set to it and help organize voting, split bills and other features for a group of friends
  - Voting currently only supports 2 options
   - Can look into other options if suggested by friends or others. If you have suggestions feel free to let me know!
  - Users can make either one-time, daily, weekly, monthly, or yearly tasks for their group that get added to a task-list
