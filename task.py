@@ -33,8 +33,10 @@ class Task:
     def set_repeating_counter(self, repeating_counter: str) -> None:
         if self.repeating_task == 'inf':
             self.repeating_counter = repeating_counter
-        else:
+        elif repeating_counter.isdigit():
             self.repeating_counter = int(repeating_counter)
+        else:
+            self.repeating_counter = 1
             
     def convert_repeating_counter_to_int(self) -> None:
         if isinstance(self.repeating_counter, str) and self.repeating_counter.isdigit():
