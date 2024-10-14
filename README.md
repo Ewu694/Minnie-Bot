@@ -8,10 +8,10 @@
 # To-Use Bot
 Paste this link: N/A (For if I decide to make this bot available to everyone, for now contact me if you wanna use this bot, as long as I know you I'll give you the bot token. For others, please wait until I finish figuring out deploying this bot) 
 # Commands (Parameters are all given in order)
-- /hello
+1) /hello
  - Description: Says hi to the bot
  - Parameters: None
-- /add_task
+2) /add_task
  - Description: Adds a task to the task-list
  - Parameters: Description of the Task: str, Repeating Task to determine if this task should be repeated or not (Optional): int, Task Type determines what type of task this will be (Optional): int
   - Repeating Task == 0 it means this task is not to be repeated || Repeating Task == 1 means this task is repeating, by default it is set to repeat infinitely for whatever type of task this can be changed with another function later on /change_repeating_counter 
@@ -22,31 +22,31 @@ Paste this link: N/A (For if I decide to make this bot available to everyone, fo
     - Monthly: Task will be repeated after 30 days
     - Yearly: Task will repeated after a year (365 days)
     - Keep in mind, by default, all tasks other than the one-time 
-- /show_tasks
+3) /show_tasks
  - Description: Displays all the tasks in the task-list in a formatted way
  - Parameters: None
-- /remove_task
+4) /remove_task
  - Description: Removes a task from the task-list using a user given task-id
  - Parameter: Task-ID: int
  - If the task-list is empty or the task couldn't be found within the task-list, message will let user know and provide further instructions
  - If task-ID is found then if its a one-time task or a non-repeating task, it'll be deleted. Else if it is a repeating task, it will reschedule it
-- /clear_tasks
+5) /clear_tasks
  - Description: Removes all the tasks in the task-list hash table
  - Parameters: None
-- /change_task_type
+6) /change_task_type
  - Description: Changes the type of a task
  - Parameters: Task-ID: int, Task type the user of the command wants to change the task into: int
-- /change_task_description
+7) /change_task_description
  - Description: Changes the description of a task given its ID
  - Parameters: Task-ID: int, Task description the user of the command wants to change the current tasks description into: str
-- /change_task_counter
+8) /change_task_counter
  - Description: Changes the amount of times a task will repeat if it is a repeating task
  - Parameters: Task-ID: int, Repeating Counter to be set onto current one: str
   - Repeating Counter string should either be inf or a number, otherwise it'll default to 1
-- /vote
+9) /vote
  - Description: Vote for a topic provided by the message/command author given two options for a user decided amount of time
  - Parameter: Topic Option: str, First Option: str, Second Option: str, Voting Duration (In Minutes): int  
-- /split_bill
+10) /split_bill
  - Description: Split bill between however many users are given
  - Parameter: Total: float, Person who paid the bill for the group: discord.User, user1, user2, ... user10 (At least 2 users must be provided to split the bill between, the other 8 are optional): discord.User
  - Currently only supports splitting the bill between 10 users
