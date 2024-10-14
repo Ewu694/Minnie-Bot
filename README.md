@@ -60,6 +60,7 @@ Paste this link: N/A (For if I decide to make this bot available to everyone, fo
 6) Run the code and keep it running if you want to use it
 
 ## Note
+If you find any bugs or any problems, please contact me and let me know so I can fix it ASAP!
 Because the bot has a client class that currently stores the tasks locally within itself through an array, as soon as the bot goes down due to updates or whatever reason that may stop it, the tasks will also disappear.
  - To remedy this, I'll look into using a database to store the tasks for each user. I'll start looking into this when I finish my database class.
 
