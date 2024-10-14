@@ -74,6 +74,9 @@ async def add_task(interaction: discord.Interaction, task_description: str, repe
     if repeating_task not in [0, 1]:
         await interaction.response.send_message('Invalid repeating task value! Repeating task should be 0 or 1! 0 for non-repeating and 1 for repeating. Your repeating task value will be defaulted to 0 ᓚ₍ ^. .^₎୨୧')
         repeating_task = 0
+    if task_type == 0 and repeating_task == 1:
+        task_type = 0
+        repeating_task = 0 
     new_task = Task(task_description, interaction.user.display_name, repeating_task, task_type)
     task_id = max(client.task_list.keys(), default=0) + 1
     client.task_list[task_id] = new_task
@@ -197,6 +200,8 @@ async def change_repeating_counter(interaction: discord.Interaction, task_id: in
         await interaction.response.send_message('No tasks to change! Add some meowster ᓚ₍ ^. .^₎୨୧')
     if task_id not in client.task_list:
         await interaction.response.send_message("Task not found! Properly check the task ID using '/show_tasks' and try again :3!")
+    elif client.task_list[task_id].repeating_task == 0:
+        await interaction.response.send_message("Task is not a repeating task! Change the task to a repeating task using '/change_task_type' and try again :3!")
     else:
         client.task_list[task_id].set_repeating_counter(repeating_counter)
         await interaction.response.send_message(f'Changed repeating counter to {repeating_counter} for task with ID: {task_id} ᓚ₍ ^. .^₎୨୧')
