@@ -227,7 +227,7 @@ async def vote(interaction: discord.Interaction, option: str, first_option: str,
         result = first_option
     elif no_choice > yes_choice:
         result = second_option
-    result_embed = discord.Embed(title = 'Vote Re sult', description = f'The result of the vote is: {result}', color = discord.Color.green(), timestamp = datetime.now())
+    result_embed = discord.Embed(title = 'Vote Result', description = f'The result of the vote is: {result}', color = discord.Color.green(), timestamp = datetime.now())
     await interaction.followup.send(content = '@everyone', embed = result_embed, allowed_mentions = discord.AllowedMentions(everyone = True))
     
 
