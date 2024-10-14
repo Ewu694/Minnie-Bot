@@ -207,13 +207,13 @@ async def change_repeating_counter(interaction: discord.Interaction, task_id: in
         await interaction.response.send_message(f'Changed repeating counter to {repeating_counter} for task with ID: {task_id} ᓚ₍ ^. .^₎୨୧')
 
 @client.tree.command(name='vote', description='Vote for whichever option you like!', guild=GUILD_ID)
-async def vote(interaction: discord.Interaction, option: str, first_option: str, second_option: str) -> None:
-    embed = discord.Embed(title = f'Vote for: {option}!', description = f'1️⃣ for {first_option}\n2️⃣ for {second_option}\n\nVoting ends in 10 minutes!', timestamp = datetime.now())
+async def vote(interaction: discord.Interaction, option: str, first_option: str, second_option: str, voting_duration: int) -> None:
+    embed = discord.Embed(title = f'Vote for: {option}!', description = f'1️⃣ for {first_option}\n2️⃣ for {second_option}\n\nVoting ends in {voting_duration} minutes!', timestamp = datetime.now())
     await interaction.response.send_message(content = '@everyone', embed = embed, allowed_mentions=discord.AllowedMentions(everyone = True))
     message = await interaction.original_response()
     await message.add_reaction('1️⃣')
     await message.add_reaction('2️⃣')
-    await asyncio.sleep(600)
+    await asyncio.sleep(voting_duration * 60)
     
     updated_message = await interaction.channel.fetch_message(message.id)
     yes_choice = discord.utils.get(updated_message.reactions, emoji = '1️⃣')
