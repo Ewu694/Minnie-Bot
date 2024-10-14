@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import discord 
 from discord import Intents, Message, app_commands
 from discord.ext import commands
-import task
+from task import Task
 
 # Load our tokens from .env
 load_dotenv()
@@ -18,7 +18,7 @@ class Client(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.task_list = {}
-        
+
 
     async def on_ready(self):
         print(f'Meowat your service {self.user}!')
@@ -40,8 +40,16 @@ class Client(commands.Bot):
         if task_id in self.task_list:
             task = self.task_list[task_id]
             if task.repeating_task == 1:
-                self.loop.create_task(self.schedule_task_deletion(task_id, delay))
-                print(f'Task with ID {task_id} is repeating and will be rescheduled.')
+                if task.repeating_counter == 'inf':
+                    self.loop.create_task(self.schedule_task_deletion(task_id, delay))
+                    print(f'Task with ID {task_id} is repeating and will be rescheduled.')
+                elif task.repeating_counter > 0:
+                    task.repeating_counter -= 1
+                    self.loop.create_task(self.schedule_task_deletion(task_id, delay))
+                    print(f'Task with ID {task_id} is repeating and will be rescheduled.')
+                else:
+                    del self.task_list[task_id]
+                    print(f'Task with ID {task_id} has been deleted after {delay} seconds.')
             else:
                 del self.task_list[task_id]
                 print(f'Task with ID {task_id} has been deleted after {delay} seconds.')
@@ -66,7 +74,7 @@ async def add_tasks(interaction: discord.Interaction, task_description: str, rep
     if repeating_task not in [0, 1]:
         await interaction.response.send_message('Invalid repeating task value! Repeating task should be 0 or 1! 0 for non-repeating and 1 for repeating. Your repeating task value will be defaulted to 0 ᓚ₍ ^. .^₎୨୧')
         repeating_task = 0
-    new_task = task.Task(task_description, interaction.user.display_name, repeating_task, task_type)
+    new_task = Task(task_description, interaction.user.display_name, repeating_task, task_type)
     task_id = max(client.task_list.keys(), default=0) + 1
     client.task_list[task_id] = new_task
 
@@ -85,9 +93,9 @@ async def add_tasks(interaction: discord.Interaction, task_description: str, rep
     elif task_type == 4: # yearly task
         delay = 365 * 24 * 60 * 60 
         delay_str = "a year"
-    elif task_type == 5: # testing task
-        delay = 10
-        delay_str = "10 seconds"
+    # elif task_type == 5: # testing task
+    #     delay = 10
+    #     delay_str = "10 seconds"
     else: # one-time task
         delay = None
         delay_str = None
@@ -139,17 +147,20 @@ async def remove_task(interaction: discord.Interaction, task_id: int) -> None:
         elif task.type == 4: # yearly task
             delay = 365 * 24 * 60 * 60 
             delay_str = "a year"
+        # elif task.type == 5: # testing task
+        #     delay = 5
+        #     delay_str = "5 seconds"
         else: # one-time task
             delay = None
             delay_str = None
         client.loop.create_task(client.schedule_task_deletion(task_id, delay))
         await interaction.response.send_message(f'Task with ID {task_id} is a repeating task and will be rescheduled to be deleted later ᓚ₍ ^. .^₎୨୧')
+        if delay_str:
+            remove_embed.set_footer(text=(f'Task will be set to expire in {delay_str}!'))
         return
 
     del client.task_list[task_id]
     remove_embed = discord.Embed(title = 'Task Removed', description=(f'Removed task with ID: {task_id} ᓚ₍ ^. .^₎୨୧'), timestamp = datetime.now())
-    if delay_str:
-        remove_embed.set_footer(text=(f'If your task was a repeating task, it will be set to expire in {delay_str}!'))
     await interaction.response.send_message(embed = remove_embed)
 
 @client.tree.command(name='clear_tasks', description='Clear all tasks from the tasklist', guild=GUILD_ID)
@@ -169,6 +180,26 @@ async def change_task_type(interaction: discord.Interaction, task_id: int, task_
     else:
         client.task_list[task_id].set_type(task_type)
         await interaction.response.send_message(f'Changed task type to {task_type} for task with ID: {task_id} ᓚ₍ ^. .^₎୨୧')
+
+@client.tree.command(name='change_task_description', description='Change the description of a task', guild=GUILD_ID)
+async def change_task_description(interaction: discord.Interaction, task_id: int, description: str) -> None:
+    if not client.task_list:
+        await interaction.response.send_message('No tasks to change! Add some meowster ᓚ₍ ^. .^₎୨୧')
+    if task_id not in client.task_list:
+        await interaction.response.send_message("Task not found! Properly check the task ID using '/show_tasks' and try again :3!")
+    else:
+        client.task_list[task_id].set_description(description)
+        await interaction.response.send_message(f'Changed task description to {description} for task with ID: {task_id} ᓚ₍ ^. .^₎୨୧')
+
+@client.tree.command(name='change_repeating_counter', description='Change the repeating counter of a task to make it loop a certain amount of times', guild=GUILD_ID)
+async def change_repeating_counter(interaction: discord.Interaction, task_id: int, repeating_counter: str) -> None:
+    if not client.task_list:
+        await interaction.response.send_message('No tasks to change! Add some meowster ᓚ₍ ^. .^₎୨୧')
+    if task_id not in client.task_list:
+        await interaction.response.send_message("Task not found! Properly check the task ID using '/show_tasks' and try again :3!")
+    else:
+        client.task_list[task_id].set_repeating_counter(repeating_counter)
+        await interaction.response.send_message(f'Changed repeating counter to {repeating_counter} for task with ID: {task_id} ᓚ₍ ^. .^₎୨୧')
 
 @client.tree.command(name='vote', description='Vote for whichever option you like!', guild=GUILD_ID)
 async def vote(interaction: discord.Interaction, option: str, first_option: str, second_option: str) -> None:
@@ -193,6 +224,7 @@ async def vote(interaction: discord.Interaction, option: str, first_option: str,
         result = second_option
     result_embed = discord.Embed(title = 'Vote Re sult', description = f'The result of the vote is: {result}', color = discord.Color.green(), timestamp = datetime.now())
     await interaction.followup.send(content = '@everyone', embed = result_embed, allowed_mentions = discord.AllowedMentions(everyone = True))
+    
 
 @client.tree.command(name='splitbill', description='Split the bill among friends!', guild=GUILD_ID)
 async def split_bill(interaction: discord.Interaction, total: float, person_to_pay: discord.User, user1: discord.User, user2: discord.User, user3: discord.User = None, user4: discord.User = None, user5: discord.User = None, user6: discord.User = None, user7: discord.User = None, user8: discord.User = None, user9: discord.User = None, user10: discord.User = None) -> None:
