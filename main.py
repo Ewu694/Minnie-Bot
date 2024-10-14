@@ -66,8 +66,8 @@ client = Client(command_prefix="!", intents=intents)
 async def bot_hello(interaction: discord.Interaction) -> None:
     await interaction.response.send_message('Meowdy ᓚ₍ ^. .^₎୨୧')
 
-@client.tree.command(name='add_tasks', description='Add Tasks that you need to do!', guild=GUILD_ID)
-async def add_tasks(interaction: discord.Interaction, task_description: str, repeating_task: int = 0, task_type: int = 0) -> None:
+@client.tree.command(name='add_task', description='Add Tasks that you need to do!', guild=GUILD_ID)
+async def add_task(interaction: discord.Interaction, task_description: str, repeating_task: int = 0, task_type: int = 0) -> None:
     if task_type not in [0, 1, 2, 3, 4, 5]:
         await interaction.response.send_message('Invalid task type! Task type should be 0, 1, 2, 3, or 4! 0 for one-time, 1 for daily, 2 for weekly, 3 for monthly, and 4 for yearly. Your task type will be defaulted to 0 ᓚ₍ ^. .^₎୨୧')
         task_type = 0
