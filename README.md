@@ -6,7 +6,7 @@
  - Users can easily split bills and know who to pay, who needs to be pay, etc.
  - Stores a local task-list hash table within its own client class mapping tasks to a unique ID
 # To-Use Bot
-Paste this link: N/A (For if I decide to make this bot available to everyone, for now contact me if you wanna use this bot, as long as I know you I'll give you the bot token. For others, please wait until I finish figuring out deploying this bot) 
+Please message me if you'd like to use my bot so I can include your server in the list of allowed servers in the use of my bot 
 # Commands (Parameters are all given in order)
 1) /hello
  - Description: Says hi to the bot
@@ -60,6 +60,7 @@ Paste this link: N/A (For if I decide to make this bot available to everyone, fo
 5) Run the code and keep it running if you want to use it
 
 ## Note
+Deployed using Discloud <br/>
 If you find any bugs or any problems, please contact me and let me know so I can fix it ASAP!<br/>Because the bot has a client class that currently stores the tasks locally within itself through an array, as soon as the bot goes down due to updates or whatever reason that may stop it, the tasks will also disappear.
  - To remedy this, I'll look into using a database to store the tasks for each user. I'll start looking into this when I finish my database class.
 
